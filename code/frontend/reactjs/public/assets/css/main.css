@@ -1,0 +1,20 @@
+.ant-tabs-bar{
+    border-bottom: unset !important;
+}
+.portal-header{
+    width: 100%;
+    height: 30px;
+    min-height: 30px;
+    background: #ffffff;
+}
+.ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab-active{
+    background: #db1a21 !important;
+    color: #ffffff !important;
+}
+.portal-header .portal-header-right img{
+    width: 40px;
+    height: 30px;
+}
+.anticon{
+    vertical-align: 0.2em !important;
+}

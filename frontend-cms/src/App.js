@@ -1,21 +1,16 @@
-import React, { Component } from 'react';
-import { inject, observer } from 'mobx-react';
-import AppRouter from 'layouts/Router/Router';
-import Footer from 'layouts/Footer/Footer';
-import Header from 'layouts/Header/Header';
+import React from 'react';
+import Headers from './layouts/Header';
+import './App.css';
+import './assets/style.css';
+import AppRouter from './layouts/Router';
 
-@inject('NewsStore')
-@observer
-class App extends Component {
-    render() {
-        return (
-            <div>
-                <Header />
-                <AppRouter />
-                <Footer />
-            </div>
-        );
-    }
+function App() {
+    return (
+        <div className='App'>
+            <Headers />
+            <AppRouter />
+        </div>
+    );
 }
 
 export default App;

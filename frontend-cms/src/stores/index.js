@@ -1,7 +1,5 @@
-import newsStore from './NewsStore';
-
-const NewsStore = new newsStore();
+import AuthStore from './AuthStore';
 
 export default {
-    NewsStore: NewsStore
+    AuthStore: new AuthStore()
 };

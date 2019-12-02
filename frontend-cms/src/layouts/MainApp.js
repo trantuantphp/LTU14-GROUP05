@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Layout } from 'antd';
 import SideBar from './SideBar/SideBar';
-import MainRouter from './Router/MainRouter';
+import Router from './Router/Router';
 
 class MainApp extends Component {
     render() {
@@ -10,7 +10,7 @@ class MainApp extends Component {
                 <SideBar />
                 <Layout className='right-layout'>
                     <div id='all-content'>
-                        <MainRouter />
+                        <Router />
                     </div>
                 </Layout>
             </Layout>

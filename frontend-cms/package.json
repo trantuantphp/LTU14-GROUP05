@@ -1,11 +1,12 @@
 {
-  "name": "crm",
+  "name": "frontend-dds-cms",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "antd": "^3.24.2",
-    "material-table": "^1.52.0",
-    "mobx": "^5.14.2",
+    "antd": "^3.25.0",
+    "material-table": "^1.54.1",
+    "mobx": "^5.15.0",
+    "mobx-react": "^6.1.4",
     "react": "^16.11.0",
     "react-data-components": "^1.2.0",
     "react-dom": "^16.11.0",
@@ -33,5 +34,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.7.0"
   }
 }

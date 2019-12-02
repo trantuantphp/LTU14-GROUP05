@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import { inject, observer } from 'mobx-react';
 import { Row, Col } from 'antd';
 
-@inject('NewsStore')
-@observer
 class HomeScreen extends Component {
     render() {
         return (

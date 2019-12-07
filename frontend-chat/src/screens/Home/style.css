@@ -1,8 +1,8 @@
 [class*="col-"] {
     width: 100%;
-  }
+}
   
-  @media only screen and (min-width: 600px) {
+@media only screen and (min-width: 600px) {
     .col-s-1 {width: 8.33%;}
     .col-s-2 {width: 16.66%;}
     .col-s-3 {width: 25%;}
@@ -15,8 +15,8 @@
     .col-s-10 {width: 83.33%;}
     .col-s-11 {width: 91.66%;}
     .col-s-12 {width: 100%;}
-  }
-  @media only screen and (min-width: 768px) {
+}
+@media only screen and (min-width: 768px) {
     .col-1 {width: 8.33%;}
     .col-2 {width: 16.66%;}
     .col-3 {width: 25%;}
@@ -29,4 +29,152 @@
     .col-10 {width: 83.33%;}
     .col-11 {width: 91.66%;}
     .col-12 {width: 100%;}
-  }
+}
+.containerLeftMenu {
+    border-width: 1pt;
+    border-style: solid;
+    border-color: #e6e6e6;
+    height: 100vh;
+}
+.topLeftmenu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5pt;
+  border-style: solid;
+  border-width: 1pt; 
+  border-color: rgb(209, 195, 195);
+}
+.btnCreateGroup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.searchInput {
+    padding-top: 5pt;
+    padding-left: 5pt;
+    padding-right: 5pt
+}
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20vh;
+  height: 100vh;
+}
+.containerSetting {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center
+}
+.btnSetting {
+    width: '100%';
+}
+.styleLine {
+    width: '100%';
+    height: 1pt;
+    background-color: #cfd7e6
+}
+.styleBtnSetting {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+.styleBtnBottom {
+  display: flex; 
+  width: 100%;
+  justify-content: space-between; 
+  margin-top: 20pt;
+}
+.containerItem{ 
+  display: flex; 
+  width: 100%; 
+  margin-top: 10pt;
+  background-color: 'transparent';
+  border-style: none; 
+  background-repeat: no-repeat;
+  outline: none;
+  align-items: center;
+  cursor: pointer;
+}
+.containerCurrentItem{ 
+  display: flex; 
+  width: 100%; 
+  margin-top: 10pt;
+  background-color: #EFF0F1; 
+  padding: 5pt;
+  border-radius: 5pt;
+  border-style: none; 
+  background-repeat: no-repeat;
+  outline: none;
+  align-items: center;
+  cursor: pointer;
+}
+.styleTextArea {
+  width: 100%;
+  border-style: none;
+  background-repeat: no-repeat;
+  outline: none;
+  resize: none;;
+}
+.topBar { 
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  border-style: solid;
+  border-color: #D9D9D9;
+  border-width: 1pt;
+  padding: 10pt
+}
+.styleChildrenTop { 
+  display: flex
+}
+.bottomBar{ 
+  display: flex;
+  width: 100%;
+  bottom: 0pt;
+  border-style: solid;
+  border-width: 1pt;
+  border-color: #D9D9D9;
+  align-items: center
+}
+.listMess {
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: scroll;
+  height: 600pt;
+}
+.avatarListFriend { 
+  width: 40pt; 
+  height: 40pt; 
+  border-radius: 20pt; 
+  background-color: red; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  margin-right: 10pt; 
+}
+.cotainerListFriend { 
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden
+}
+.styleLastMess {
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: left
+}
+.bigAvatar {
+  width: 60pt; 
+  height: 60pt; 
+  border-radius: 30pt; 
+  background-color: red; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}

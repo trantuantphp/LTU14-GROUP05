@@ -8,7 +8,8 @@ var User = db.define(
     {
         id: {
             type: Sequelize.INTEGER,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
         username: {
             type: Sequelize.STRING
@@ -35,7 +36,8 @@ var File = db.define(
     {
         id: {
             type: Sequelize.INTEGER,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
         type: {
             type: Sequelize.STRING
@@ -64,7 +66,8 @@ var Room = db.define(
     {
         id: {
             type: Sequelize.INTEGER,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
         name: {
             type: Sequelize.STRING,
@@ -89,7 +92,8 @@ var RoomMember = db.define(
     {
         id: {
             type: Sequelize.INTEGER,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
         room_id: {
             type: Sequelize.INTEGER
@@ -112,11 +116,62 @@ var RoomMember = db.define(
     }
 );
 
+var Message = db.define(
+    'Message',
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        type: {
+            type: Sequelize.TINYINT
+        },
+        value: {
+            type: Sequelize.TEXT
+        },
+        sender_id: {
+            type: Sequelize.INTEGER
+        },
+        receiver_id: {
+            type: Sequelize.INTEGER
+        },
+        receiver_type: {
+            type: Sequelize.TINYINT
+        }
+    },
+    {
+        updatedAt: false,
+        tableName: 'tb_message'
+    }
+);
+
+var Admin = db.define(
+    'Admin',
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        username: {
+            type: Sequelize.STRING
+        },
+        password: {
+            type: Sequelize.STRING
+        }
+    },
+    {
+        timestamps: false,
+        tableName: 'tb_admin'
+    }
+);
+
 User.belongsToMany(Room, {
     as: 'rooms',
     through: RoomMember,
     foreignKey: 'member_id',
-    otherKey: 'room_id',
+    otherKey: 'room_id'
 });
 Room.belongsToMany(User, {
     as: 'members',
@@ -132,10 +187,11 @@ RoomMember.belongsTo(Room, {
     foreignKey: 'room_id',
     targetKey: 'id'
 });
-
 module.exports = {
     User,
     File,
     Room,
-    RoomMember
-}
+    RoomMember,
+    Message,
+    Admin
+};

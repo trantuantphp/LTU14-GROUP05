@@ -1,8 +1,7 @@
 const express = require('express');
+const file_router = express.Router();
 var fs = require('fs');
 var multer = require('multer');
-var FileController = require('./FileController');
-const file_router = express.Router();
 
 var storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -20,17 +19,14 @@ var storage = multer.diskStorage({
         );
     }
 });
-var upload = multer({storage: storage});
-file_router.post('/upload', upload.single('avatarImage'), async function(req, res, next) {
-    const { fieldname, filename, originalname, mimetype } = req.file;
-    let obj = {
-        folder: 'uploads',
-        type: mimetype,
-        fieldname: fieldname,
-        filename: filename,
-        originalname: originalname
-    };
-    let data = await FileController.uploadFile(obj);
+var upload = multer({ storage: storage });
+
+const FileController = require('../controller/File');
+file_router.post('/upload', upload.single('avatarImage'), async function(
+    req,
+    res
+) {
+    let data = await FileController.upload(req);
     return res.json(data);
 });
 file_router.get('/image/:name?', function(req, res) {

@@ -1,12 +1,12 @@
 const bcrypt = require('bcrypt');
-var os = require('os');
 var User = require('./UserModel');
+const { method } = User;
 
 var UserController = {
     getAllUser: async req => {
         const { headers } = req;
         try {
-            let data = await User.getAllUser();
+            let data = await method.getAllUser();
             if (data) {
                 for (let i = 0; i < data.length; i++) {
                     if (data[i].avatar) {
@@ -34,7 +34,7 @@ var UserController = {
     getUserDetail: async req => {
         const { headers, body } = req;
         try {
-            let data = await User.getUserDetail(body.username);
+            let data = await method.getUserDetail(body.username);
             if (data) {
                 if (data.avatar) {
                     data.avatar = headers.host + '/file/image/' + data.avatar;
@@ -60,7 +60,7 @@ var UserController = {
         try {
             const saltRounds = 10;
             obj.password = bcrypt.hashSync(obj.password, saltRounds);
-            let data = await User.addUser(obj);
+            let data = await method.addUser(obj);
             return data;
         } catch (error) {
             console.error(error);
@@ -70,13 +70,17 @@ var UserController = {
     login: async req => {
         const { headers, body } = req;
         const { username, password } = body;
-        let data = await User.login({
+        let data = await method.login({
             username: username,
             password: password
         });
         if (data.avatar) {
             data.avatar = headers.host + '/file/image/' + data.avatar;
         }
+        return data;
+    },
+    getUserRoom: async req => {
+        let data = await method.getUserRoom(req);
         return data;
     }
 };

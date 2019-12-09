@@ -7,8 +7,8 @@ import Router from './layouts/Router/Router';
 function App() {
   return (
     <div>
-      {/* <RouterAuthen /> */}
-      <Router />
+      <RouterAuthen />
+      {/* <Router /> */}
     </div>
   );
 }

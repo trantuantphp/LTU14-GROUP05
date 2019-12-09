@@ -5,6 +5,10 @@ import { Link } from 'react-router-dom';
 
 import './Login.css';
 import Register from '../Register';
+import { AuthenService } from '../../Services/AuthenService';
+// import Router from './layouts/Router/Router';
+
+var socket = require('socket.io-client')('http://api-dds.tuan-ltu.com');
 
 class Login extends Component {
     constructor(props) {
@@ -12,47 +16,94 @@ class Login extends Component {
         this.state = {
             username: '',
             password: '',
-            isShowModal: false,
+            isShowModal: false
         };
+    }
+
+    componentDidMount() {
+        socket.on('getListOnline', function(msg) {
+            if(msg){
+                console.log('msg', JSON.stringify(msg));
+                // <AppRouter />;
+                
+            }
+        });
     }
 
     handleChangeUsername = event => {
         this.setState({
             username: event.target.value
         });
-    }
+    };
 
     handleChangePass = event => {
         this.setState({
             password: event.target.value
         });
-    }
+    };
+
+    onClickLogin = async () => {
+        if (this.state.username !== '' && this.state.password !== '') {
+            const res = await AuthenService.login(this.state.username, this.state.password);
+            if (res.errorCode === 0) {
+                if(res.data) {
+                    const body = {
+                        username: res.data.username,
+                        id: res.data.id
+                    };
+                    socket.emit('login', body);
+                } else {
+                    alert(res.msg);
+                }
+            }
+        } else {
+            alert('Vui lòng nhập đầy đủ thông tin');
+        }
+        // await AuthenService.login('trantuan001', '123456');
+    };
 
     onClickRegister = () => {
         this.setState({
             isShowModal: true
         });
-    }
+    };
 
     handleDissmissModal = () => {
         this.setState({
             isShowModal: false
         });
-    }
+    };
 
     render() {
         const { username, password, isShowModal } = this.state;
         return (
             <div className='Login'>
                 <Col span={6}>
-                    <div style={{ backgroundColor: '#fff', padding: 15, borderRadius: 6 }}>
-                        <div style={{ color: '#000000', fontSize: 24, textAlign: 'center' }}>LIVE CHAT</div>
+                    <div
+                        style={{
+                            backgroundColor: '#fff',
+                            padding: 15,
+                            borderRadius: 6
+                        }}
+                    >
+                        <div
+                            style={{
+                                color: '#000000',
+                                fontSize: 24,
+                                textAlign: 'center'
+                            }}
+                        >
+                            LIVE CHAT
+                        </div>
                         <div style={{ paddingTop: 15 }}>
                             <Input
                                 placeholder='Username'
                                 prefix={(
                                     <div>
-                                        <Icon type='user' style={{ color: 'rgba(0,0,0,.25)' }} />
+                                        <Icon
+                                            type='user'
+                                            style={{ color: 'rgba(0,0,0,.25)' }}
+                                        />
                                     </div>
                                 )}
                                 value={username}
@@ -64,7 +115,10 @@ class Login extends Component {
                                 placeholder='Password'
                                 prefix={(
                                     <div>
-                                        <Icon type='user' style={{ color: 'rgba(0,0,0,.25)' }} />
+                                        <Icon
+                                            type='user'
+                                            style={{ color: 'rgba(0,0,0,.25)' }}
+                                        />
                                     </div>
                                 )}
                                 type='password'
@@ -72,16 +126,43 @@ class Login extends Component {
                                 onChange={this.handleChangePass}
                             />
                         </div>
-                        <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end', paddingTop: 25, paddingBottom: 20 }}>
-                            <Button style={{ backgroundColor: '#39d431' }} onClick={this.onClickLogin}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                width: '100%',
+                                justifyContent: 'flex-end',
+                                paddingTop: 25,
+                                paddingBottom: 20
+                            }}
+                        >
+                            <Button
+                                style={{ backgroundColor: '#39d431' }}
+                                onClick={this.onClickLogin}
+                            >
                                 Đăng nhập
                             </Button>
                         </div>
-                        <div style={{ width: '100%', height: 1, backgroundColor: '#00000050' }} />
+                        <div
+                            style={{
+                                width: '100%',
+                                height: 1,
+                                backgroundColor: '#00000050'
+                            }}
+                        />
                         <div style={{ paddingTop: 10, textAlign: 'center' }}>
-                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                                <div style={{ marginRight: 5 }}>Chưa có tài khoản?</div>
-                                <Link onClick={this.onClickRegister}>Đăng ký</Link>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <div style={{ marginRight: 5 }}>
+                                    Chưa có tài khoản?
+                                </div>
+                                <Link onClick={this.onClickRegister}>
+                                    Đăng ký
+                                </Link>
                             </div>
                             <div style={{ paddingTop: 8 }}>
                                 <Link>Quên mật khẩu</Link>
@@ -89,7 +170,12 @@ class Login extends Component {
                         </div>
                     </div>
                 </Col>
-                <Modal visible={isShowModal} footer={null} centered onCancel={this.handleDissmissModal}>
+                <Modal
+                    visible={isShowModal}
+                    footer={null}
+                    centered
+                    onCancel={this.handleDissmissModal}
+                >
                     <Register />
                 </Modal>
             </div>

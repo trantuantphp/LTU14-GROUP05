@@ -14,7 +14,6 @@ class AppRouter extends Component {
         return (
             <Switch>
                 <Route exact path='/' component={HomeScreen} />
-                <Route exact path='/login' component={Login} />
             </Switch>
         );
     }

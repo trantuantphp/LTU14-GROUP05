@@ -6,6 +6,8 @@ import { Row, Col, Input, Icon, Button, Modal, List } from 'antd';
 import './style.css';
 import TextArea from 'antd/lib/input/TextArea';
 
+// var socket = require('socket.io-client')('api-dds.tuan-ltu.com');
+
 @inject('NewsStore')
 @observer
 class HomeScreen extends Component {
@@ -235,7 +237,7 @@ class HomeScreen extends Component {
                             </div>
                         </div>
                     </Button>
-                    {this.state.data.map((item, index) => {
+                    {/* {this.state.data.map((item, index) => {
                         return (
                             <div key={index.toString()}>
                                 <button className='containerItem' onClick={() => this.onClickItem(item, index)}>
@@ -252,14 +254,14 @@ class HomeScreen extends Component {
                                 </button>
                             </div>
                         );
-                    })}
+                    })} */}
                 </div>
                 <div style={{ width: '100%', height: 1, backgroundColor: 'rgb(209, 195, 195)', marginTop: 10 }} />
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingLeft: 15, paddingRight: 10, paddingTop: 5 }}>
                     <div style={{ fontSize: 15, color: 'rgba(0, 0, 0, .34)', fontFamily: 'inherit' }}>
                         Được chia sẻ
                     </div>
-                    {this.state.data.map((item, index) => {
+                    {/* {this.state.data.map((item, index) => {
                         return (
                             <div key={index.toString()}>
                                 <div>
@@ -267,7 +269,7 @@ class HomeScreen extends Component {
                                 </div>
                             </div>
                         );
-                    })}
+                    })} */}
                 </div>
             </div>
         );

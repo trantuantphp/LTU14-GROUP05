@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import HomeScreen from '../../screens/Home/HomeScreen';
 import Login from '../../screens/Login';
+import Path from './Path';
 
 class AppRouter extends Component {
     constructor(props) {
@@ -13,7 +14,8 @@ class AppRouter extends Component {
     render() {
         return (
             <Switch>
-                <Route exact path='/' component={HomeScreen} />
+                <Route exact path='/login' component={Login} />
+                <Path exact path='/' component={HomeScreen} />
             </Switch>
         );
     }

@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { Input, Icon, Button } from 'antd';
+import { inject, observer } from 'mobx-react';
 
+import { AuthenService } from '../../Services/AuthenService';
+
+@inject('AuthStore')
+@observer
 class Register extends Component {
   constructor(props) {
     super(props);
@@ -10,6 +15,24 @@ class Register extends Component {
       password: '',
       rePassword: '',
     };
+  }
+
+  onClickLogin = async () => {
+    const { AuthStore } = this.props;
+    const { fullname, username, password, rePassword } = this.state;
+    if (fullname !== '' && username !== '' && password !== '') {
+      if (password === rePassword) {
+        const res = await AuthenService.register(username, password, fullname, null);
+        if (res.errorCode === 0) {
+          AuthStore.isShowModalRegister = false;
+          alert('Đăng ký thành công');
+        }
+      } else {
+        alert('Mật khẩu không trùng khớp');
+      }
+    } else {
+      alert('Vui lòng điền đầy đủ thông tin');
+    }
   }
 
   handleChangeName = event => {

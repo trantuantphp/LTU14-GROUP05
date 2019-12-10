@@ -7,6 +7,21 @@ export const AuthenService = {
             username: username,
             password: password
         };
-        return await Request.postWithParam(api.login, body);
+        const res = await Request.postWithParam(api.login, body);
+        if (res) {
+            return res;
+        }
+    },
+    register: async (username, password, name, avatar) => {
+        const body = {
+            username,
+            password,
+            name,
+            avatar,
+        };
+        const res = await Request.postWithParam(api.register, body);
+        if (res) {
+            return res;
+        }
     }
 };

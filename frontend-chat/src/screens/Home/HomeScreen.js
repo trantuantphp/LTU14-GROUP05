@@ -2,81 +2,116 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import { Row, Col, Input, Icon, Button, Modal, List } from 'antd';
+import 'emoji-mart/css/emoji-mart.css';
+import { Picker } from 'emoji-mart';
 
 import './style.css';
-import TextArea from 'antd/lib/input/TextArea';
+import { ChatService } from '../../Services/ChatService';
 
-// var socket = require('socket.io-client')('api-dds.tuan-ltu.com');
+var socket = require('socket.io-client')('api-dds.tuan-ltu.com');
 
-@inject('NewsStore')
+@inject('NewsStore', 'AuthStore')
 @observer
 class HomeScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [
-                { id: 1, name: 'Tuấn Nguyễn', lastMess: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
-                { id: 2, name: 'Tuấn Trần', lastMess: 'aaaaaaaaaa' },
-                { id: 3, name: 'Long Nguyễn', lastMess: 'aaaaaaaaaa' },
-                { id: 4, name: 'Đỗ Việt Hưng', lastMess: 'aaaaaaaaaa' },
-                { id: 5, name: 'Trang Nguyễn', lastMess: 'aaaaaaaaaa' },
-            ],
-            currentChat: 1,
+            isShowEmoji: false,
+            listFriends: [],
+            listGroups: [],
+            currentChat: -1,
+            currentGroup: -1,
             isShowSetting: false,
-            dataChat: [
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'fffffff' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 2, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'asdfasdfasdfasdf' },
-                { id: 1, name: 'Tuấn Nguyễn', mess: 'aaaaaaaaasdfasdfaslkdfhlasjdflkasjdflkjasdlkfjasldkfjalksdfjlsakdjflaksjdflaskjdflkasjdflaskjdflkasjfdlkasjfdlkasjflkasjdflksajdfasdlkfjasldkffjlsakdjflaksjdflaskjdflkasjdflaskjdflkasjfdlkasjfdlkasjflkasjdflksajdfasdlkfjasldkfj' },
-
-            ]
+            dataChat: [],
+            listFriendOnline: [],
+            chatName: '',
+            chatAvatar: '',
+            shared: [],
+            members: [],
         };
     }
 
-    onClickItem = (item, index) => {
+    componentDidMount() {
+        this.getData();
+        const userInfor = JSON.parse(localStorage.getItem('userInfor'));
+        const body = {
+            username: userInfor.username,
+            id: userInfor.id
+        };
+        socket.emit('login', body);
+        socket.on('getListOnline', (data) => {
+            if (data) {
+                this.setState({
+                    listFriendOnline: data
+                });
+            }
+        });
+    }
+
+    getData = async () => {
+        const userInfor = JSON.parse(localStorage.getItem('userInfor'));
+        const listFriends = await ChatService.getAllUser();
+        const listGroups = await ChatService.getListRoom(userInfor.id);
+
+        if (listFriends.errorCode === 0 && listFriends.data) {
+            this.setState({
+                listFriends: listFriends.data
+            });
+        }
+        if (listGroups && listGroups.rooms) {
+            this.setState({
+                listGroups: listGroups.rooms
+            });
+        }
+    }
+
+    onCLickLogout = () => {
+        const { AuthStore, history } = this.props;
+        AuthStore.isLogin = false;
+        localStorage.clear();
+        history.push('/login');
+    }
+
+    onClickShowEmoji = () => {
+        const { isShowEmoji } = this.state;
         this.setState({
-            currentChat: index
+            isShowEmoji: !isShowEmoji
+        });
+    }
+
+    onClickItem = async (item, index) => {
+        const res = await ChatService.getUserDetail(item.id);
+        if (res.errorCode === 0 && res.data) {
+            this.setState({
+                chatName: res.data.name,
+                chatAvatar: res.data.avatar
+            });
+        }
+        this.setState({
+            currentChat: index,
+            currentGroup: -1
+        });
+    }
+
+    onClickGroupChat = async (item, index) => {
+        const res = await ChatService.getListMember(item.id);
+        let nameGroup = '';
+        if (res[0]) {
+            res[0].members.map((item, index) => {
+                if (index === res[0].members.length - 1) {
+                    nameGroup += item.name;
+                } else {
+                    nameGroup += item.name + ', ';
+                }
+            });
+            this.setState({
+                chatName: nameGroup,
+                members: res[0].members
+            });
+        }
+        this.setState({
+            currentGroup: index,
+            currentChat: -1,
         });
     }
 
@@ -126,8 +161,8 @@ class HomeScreen extends Component {
                     <Button onClick={this.onCancelSetting}>
                         Đóng
                     </Button>
-                    <Button type='primary'>
-                        Xác nhận
+                    <Button type='primary' onClick={this.onCLickLogout}>
+                        Đăng xuất
                     </Button>
                 </div>
             </div>
@@ -135,14 +170,48 @@ class HomeScreen extends Component {
     }
 
     renderListFriend(item, index) {
-        const { currentChat } = this.state;
+        const { currentChat, listFriendOnline } = this.state;
         return (
             <div>
                 <button className={index === currentChat ? 'containerCurrentItem' : 'containerItem'} onClick={() => this.onClickItem(item, index)}>
                     <div style={{ width: 60 }}>
-                        <div className='avatarListFriend'>
-                            ava
+                        {
+                            item.avatar ?
+                                <div className='avatarListFriend' style={{ backgroundImage: `url(http://${item.avatar})` }} />
+                                :
+                                <div className='avatarListFriend' />
+                        }
+                    </div>
+                    <div className='cotainerListFriend'>
+                        <div>
+                            {item.name}
                         </div>
+                        <div className='styleLastMess'>
+                            {
+                                listFriendOnline.map(online => {
+                                    if (item.id === online.id) return (<div>Online</div>);
+                                })
+                            }
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+        );
+    }
+
+    renderListGroup(item, index) {
+        const { currentGroup } = this.state;
+        return (
+            <div>
+                <button className={index === currentGroup ? 'containerCurrentItem' : 'containerItem'} onClick={() => this.onClickGroupChat(item, index)}>
+                    <div style={{ width: 60 }}>
+                        {
+                            item.avatar ?
+                                <div className='avatarListFriend' style={{ backgroundImage: `url(http://${item.avatar})` }} />
+                                :
+                                <div className='avatarListFriend' />
+                        }
                     </div>
                     <div className='cotainerListFriend'>
                         <div>
@@ -188,80 +257,95 @@ class HomeScreen extends Component {
     }
 
     renderSiderChat() {
+        const { currentChat, chatName, chatAvatar } = this.state;
         return (
-            <div style={{ display: 'flex', width: '100%', height: '100%', flexDirection: 'column', overflow: 'scroll', paddingTop: 60, alignItems: 'center', borderLeftStyle: 'solid', borderWidth: 1, borderColor: 'rgb(209, 195, 195)' }}>
-                <div className='bigAvatar'>
-                    ava
+            <div style={{ height: '100%', overflow: 'auto', paddingTop: 60, alignItems: 'center', borderLeftStyle: 'solid', borderWidth: 1, borderColor: 'rgb(209, 195, 195)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    {
+                        chatAvatar && chatAvatar !== '' ?
+                            <div className='bigAvatar' style={{ backgroundImage: `url(http://${chatAvatar})` }} />
+                            :
+                            <div className='bigAvatar' />
+                    }
+                    <div>{chatName}</div>
                 </div>
-                <div>
-                    Ten nhom
-                </div>
+
                 <div style={{ width: '100%', height: 1, backgroundColor: 'rgb(209, 195, 195)', marginTop: 10 }} />
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingLeft: 15, paddingRight: 10, paddingTop: 5 }}>
-                    <div style={{ fontSize: 15, color: 'rgba(0, 0, 0, .34)', fontFamily: 'inherit' }}>
-                        Tuỳ chọn
-                    </div>
-                    <Button type='link' style={{ width: '100%' }}>
-                        <div style={{ width: '100%', display: 'flex', position: 'absolute', left: 0, justifyContent: 'space-between', alignItems: 'center', bottom: 5 }}>
-                            <div>
-                                Đổi tên nhóm
-                            </div>
-                            <div>
-                                <Icon type='edit' />
-                            </div>
-                        </div>
-                    </Button>
-                    <Button type='link' style={{ width: '100%', marginTop: 10 }}>
-                        <div style={{ width: '100%', display: 'flex', position: 'absolute', left: 0, justifyContent: 'space-between', alignItems: 'center', bottom: 5 }}>
-                            <div>
-                                Đổi avatar
-                            </div>
-                            <div>
-                                <Icon type='swap' />
-                            </div>
-                        </div>
-                    </Button>
-                </div>
-                <div style={{ width: '100%', height: 1, backgroundColor: 'rgb(209, 195, 195)', marginTop: 10 }} />
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingLeft: 15, paddingRight: 10, paddingTop: 5 }}>
-                    <div style={{ fontSize: 15, color: 'rgba(0, 0, 0, .34)', fontFamily: 'inherit' }}>
-                        Thành viên
-                    </div>
-                    <Button type='link' style={{ width: '100%' }}>
-                        <div style={{ width: '100%', display: 'flex', position: 'absolute', left: 0, alignItems: 'center', bottom: 5 }}>
-                            <div>
-                                <Icon type='user-add' />
-                            </div>
-                            <div style={{ marginLeft: 5 }}>
-                                Thêm thành viên
-                            </div>
-                        </div>
-                    </Button>
-                    {/* {this.state.data.map((item, index) => {
-                        return (
-                            <div key={index.toString()}>
-                                <button className='containerItem' onClick={() => this.onClickItem(item, index)}>
-                                    <div style={{ width: 60 }}>
-                                        <div className='avatarListFriend'>
-                                            ava
-                                        </div>
-                                    </div>
-                                    <div className='cotainerListFriend'>
+                {
+                    currentChat === -1 ? (
+                        <div>
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingLeft: 15, paddingRight: 10, paddingTop: 5 }}>
+                                <div style={{ fontSize: 15, color: 'rgba(0, 0, 0, .34)', fontFamily: 'inherit' }}>
+                                    Tuỳ chọn
+                                </div>
+                                <Button type='link' style={{ width: '100%' }}>
+                                    <div style={{ width: '100%', display: 'flex', position: 'absolute', left: 0, justifyContent: 'space-between', alignItems: 'center', bottom: 5 }}>
                                         <div>
-                                            {item.name}
+                                            Đổi tên nhóm
+                                        </div>
+                                        <div>
+                                            <Icon type='edit' />
                                         </div>
                                     </div>
-                                </button>
+                                </Button>
+                                <Button type='link' style={{ width: '100%', marginTop: 10 }}>
+                                    <div style={{ width: '100%', display: 'flex', position: 'absolute', left: 0, justifyContent: 'space-between', alignItems: 'center', bottom: 5 }}>
+                                        <div>
+                                            Đổi avatar
+                                        </div>
+                                        <div>
+                                            <Icon type='swap' />
+                                        </div>
+                                    </div>
+                                </Button>
                             </div>
-                        );
-                    })} */}
-                </div>
-                <div style={{ width: '100%', height: 1, backgroundColor: 'rgb(209, 195, 195)', marginTop: 10 }} />
+                            <div style={{ width: '100%', height: 1, backgroundColor: 'rgb(209, 195, 195)', marginTop: 10 }} />
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingLeft: 15, paddingRight: 10, paddingTop: 5 }}>
+                                <div style={{ fontSize: 15, color: 'rgba(0, 0, 0, .34)', fontFamily: 'inherit' }}>
+                                    Thành viên
+                                </div>
+                                <Button type='link' style={{ width: '100%' }}>
+                                    <div style={{ width: '100%', display: 'flex', position: 'absolute', left: 0, alignItems: 'center', bottom: 5 }}>
+                                        <div>
+                                            <Icon type='user-add' />
+                                        </div>
+                                        <div style={{ marginLeft: 5 }}>
+                                            Thêm thành viên
+                                        </div>
+                                    </div>
+                                </Button>
+                                {this.state.members.map((item, index) => {
+                                    return (
+                                        <div key={index.toString()}>
+                                            <button className='containerItem' onClick={() => this.onClickItem(item, index)}>
+                                                <div style={{ width: 60 }}>
+                                                    {
+                                                        item.avatar ?
+                                                            <div className='avatarListFriend' style={{ backgroundImage: `url(http://${item.avatar})` }} />
+                                                            :
+                                                            <div className='avatarListFriend' />
+                                                    }
+                                                </div>
+                                                <div className='cotainerListFriend'>
+                                                    <div>
+                                                        {item.name}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div style={{ width: '100%', height: 1, backgroundColor: 'rgb(209, 195, 195)', marginTop: 10 }} />
+                        </div>
+                    ) : null
+                }
+
                 <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingLeft: 15, paddingRight: 10, paddingTop: 5 }}>
                     <div style={{ fontSize: 15, color: 'rgba(0, 0, 0, .34)', fontFamily: 'inherit' }}>
                         Được chia sẻ
                     </div>
-                    {/* {this.state.data.map((item, index) => {
+                    {this.state.shared.map((item, index) => {
                         return (
                             <div key={index.toString()}>
                                 <div>
@@ -269,19 +353,26 @@ class HomeScreen extends Component {
                                 </div>
                             </div>
                         );
-                    })} */}
+                    })}
                 </div>
             </div>
         );
     }
 
     renderChat() {
+        const { chatName, chatAvatar, isShowEmoji } = this.state;
+        console.log('asdf', isShowEmoji);
         return (
             <div style={{ height: '100vh' }}>
                 <div className='topBar'>
                     <div className='styleChildrenTop'>
-                        <div>avatar</div>
-                        <div>Name</div>
+                        {
+                            chatAvatar && chatAvatar !== '' ?
+                                <div className='avatarListFriend' style={{ backgroundImage: `url(http://${chatAvatar})` }} />
+                                :
+                                <div className='avatarListFriend' />
+                        }
+                        <div>{chatName}</div>
                     </div>
                     <div className='styleChildrenTop'>
                         <div>
@@ -293,32 +384,39 @@ class HomeScreen extends Component {
                     </div>
                 </div>
                 <div style={{ display: 'flex', height: '94%' }}>
-                    <div>
-                        <List
-                            className="listMess"
-                            itemLayout='horizontal'
-                            dataSource={this.state.dataChat}
-                            renderItem={(item, index) => this.renderListMess(item, index)}
-                        />
-                        <div className='bottomBar'>
-                            <textarea placeholder='write a message...' className='styleTextArea' />
-                            <div>
-                                <Button type='link'>
-                                    <Icon type='smile' style={{ fontSize: 30, color: '#000000' }} />
-                                </Button>
-                            </div>
-                            <div>
-                                <Button type='link'>
-                                    <Icon type='folder' style={{ fontSize: 30, color: '#000000' }} />
-                                </Button>
-                            </div>
-                            <div>
-                                <Button type='link'>
-                                    <img src={require('../../assets/images/send.png')} alt='sned' width='30' height='30' />
-                                </Button>
+                    <Col span={16}>
+                        <div>
+                            <List
+                                className="listMess"
+                                itemLayout='horizontal'
+                                dataSource={this.state.dataChat}
+                                renderItem={(item, index) => this.renderListMess(item, index)}
+                            />
+                            <div className='bottomBar'>
+                                {
+                                    isShowEmoji ?
+                                        <Picker style={{ position: 'absolute', bottom: 70, right: 10 }} />
+                                        : null
+                                }
+                                <textarea placeholder='write a message...' className='styleTextArea' />
+                                <div>
+                                    <Button type='link' onClick={this.onClickShowEmoji}>
+                                        <Icon type='smile' style={{ fontSize: 30, color: '#000000' }} />
+                                    </Button>
+                                </div>
+                                <div>
+                                    <Button type='link'>
+                                        <Icon type='folder' style={{ fontSize: 30, color: '#000000' }} />
+                                    </Button>
+                                </div>
+                                <div>
+                                    <Button type='link'>
+                                        <img src={require('../../assets/images/send.png')} alt='sned' width='30' height='30' />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </Col>
                     <Col span={8}>
                         {this.renderSiderChat()}
                     </Col>
@@ -330,7 +428,7 @@ class HomeScreen extends Component {
     }
 
     render() {
-        const { currentChat, isShowSetting } = this.state;
+        const { currentChat, isShowSetting, currentGroup } = this.state;
         return (
             <div>
                 <Row type='flex'>
@@ -359,7 +457,17 @@ class HomeScreen extends Component {
                                     prefix={<Icon type='search' />}
                                 />
                                 <div>
-                                    {this.state.data.map((item, index) => this.renderListFriend(item, index))}
+                                    <div style={{ fontSize: 15, color: 'rgba(0, 0, 0, .34)', fontFamily: 'inherit' }}>
+                                        Bạn bè
+                                    </div>
+                                    {this.state.listFriends.map((item, index) => this.renderListFriend(item, index))}
+                                </div>
+                                <div className='styleLine' />
+                                <div>
+                                    <div style={{ fontSize: 15, color: 'rgba(0, 0, 0, .34)', fontFamily: 'inherit' }}>
+                                        Nhóm
+                                    </div>
+                                    {this.state.listGroups.map((item, index) => this.renderListGroup(item, index))}
                                 </div>
                             </div>
 
@@ -367,7 +475,7 @@ class HomeScreen extends Component {
                     </Col>
                     <Col span={18}>
                         {
-                            currentChat !== -1 ?
+                            currentChat !== -1 || currentGroup !== -1 ?
                                 this.renderChat()
                                 : (
                                     <div className='mainContainer'>

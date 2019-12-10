@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { Input, Col, Icon, Button, Modal } from 'antd';
 import { Link } from 'react-router-dom';
+import { observer, inject } from 'mobx-react';
 
 import './Login.css';
 import Register from '../Register';
@@ -10,24 +11,19 @@ import { AuthenService } from '../../Services/AuthenService';
 
 var socket = require('socket.io-client')('http://api-dds.tuan-ltu.com');
 
+@inject('AuthStore')
+@observer
 class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
             username: '',
             password: '',
-            isShowModal: false
         };
     }
 
     componentDidMount() {
-        socket.on('getListOnline', function(msg) {
-            if(msg){
-                console.log('msg', JSON.stringify(msg));
-                // <AppRouter />;
-                
-            }
-        });
+        const { AuthStore, history } = this.props;
     }
 
     handleChangeUsername = event => {
@@ -43,18 +39,20 @@ class Login extends Component {
     };
 
     onClickLogin = async () => {
+        const { AuthStore, history } = this.props;
         if (this.state.username !== '' && this.state.password !== '') {
             const res = await AuthenService.login(this.state.username, this.state.password);
+            // console.log('RES', JSON.stringify(res));
             if (res.errorCode === 0) {
-                if(res.data) {
-                    const body = {
-                        username: res.data.username,
-                        id: res.data.id
-                    };
-                    socket.emit('login', body);
+                if (res.data) {
+                    AuthStore.isLogin = true;
+                    AuthStore.setUserInfor(res.data);
+                    history.push('/');
                 } else {
                     alert(res.msg);
                 }
+            } else {
+                console.log('ERROR');
             }
         } else {
             alert('Vui lòng nhập đầy đủ thông tin');
@@ -63,19 +61,18 @@ class Login extends Component {
     };
 
     onClickRegister = () => {
-        this.setState({
-            isShowModal: true
-        });
+        const { AuthStore } = this.props;
+        AuthStore.isShowModalRegister = true;
     };
 
     handleDissmissModal = () => {
-        this.setState({
-            isShowModal: false
-        });
+        const { AuthStore } = this.props;
+        AuthStore.isShowModalRegister = false;
     };
 
     render() {
-        const { username, password, isShowModal } = this.state;
+        const { AuthStore } = this.props;
+        const { username, password } = this.state;
         return (
             <div className='Login'>
                 <Col span={6}>
@@ -171,7 +168,7 @@ class Login extends Component {
                     </div>
                 </Col>
                 <Modal
-                    visible={isShowModal}
+                    visible={AuthStore.isShowModalRegister}
                     footer={null}
                     centered
                     onCancel={this.handleDissmissModal}

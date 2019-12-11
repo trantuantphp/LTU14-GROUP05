@@ -131,7 +131,68 @@ class HomeScreen extends Component {
         });
     };
 
-    onClickSendMess = async () => {
+    onClickSendMess = () => {
+        if (this.state.currentGroup >= 0) {
+            this.sendMessGroup();
+        }
+        if (this.state.currentChat >= 0) {
+            this.sendMessSingle();
+        }
+    }
+
+    sendMessGroup = async () => {
+        const { AuthStore } = this.props;
+        const { value, roomId, dataChat } = this.state;
+        const userInfor = AuthStore.userInfor;
+        const chat = dataChat;
+        const messSender = {
+            id: 1,
+            type: 1,
+            value: value,
+            sender_id: userInfor.id,
+            receiver_id: roomId,
+            receiver_type: 2,
+            createdAt: new Date()
+        };
+        if (value.length > 0) {
+            const res = await ChatService.sendMess(1, value, userInfor.id, roomId, 2);
+            if (res && res.errorCode === 0) {
+                chat.push(messSender);
+                const body = {
+                    type: 1,
+                    value: value,
+                    sender_id: userInfor.id,
+                    receiver_id: roomId,
+                    receiver_type: 2,
+                    socket: null
+                };
+                this.setState({
+                    dataChat: chat,
+                    value: ''
+                });
+                socket.emit('sendMessage', body);
+            }
+        }
+        socket.on('receiveMessage', data => {
+            if (data) {
+                const mess = {
+                    id: new Date(),
+                    type: data.type,
+                    value: data.value,
+                    sender_id: data.sender_id,
+                    receiver_id: data.receiver_id,
+                    receiver_type: data.receiver_type,
+                    createdAt: new Date()
+                };
+                chat.push(mess);
+                this.setState({
+                    dataChat: chat
+                });
+            }
+        });
+    }
+
+    sendMessSingle = async () => {
         const { AuthStore } = this.props;
         const { value, chatId, socketId, dataChat } = this.state;
         const userInfor = AuthStore.userInfor;
@@ -208,7 +269,7 @@ class HomeScreen extends Component {
     onClickGroupChat = async (item, index) => {
         const { ChatStore } = this.props;
         const res = await ChatService.getListMember(item.id);
-        const listMess = await ChatService.getListMess(item.id, 2);
+        const listMess = await ChatService.getListMessGroup(item.id, 2);
         if (listMess && listMess.data) {
             this.setState({
                 dataChat: listMess.data
@@ -388,10 +449,11 @@ class HomeScreen extends Component {
     }
 
     renderListMess(item, index) {
-        console.log('asdf', item.sender_id, ' ', this.state.chatId);
+        const { AuthStore } = this.props;
+        const userInfor = AuthStore.userInfor;
         return (
             <div>
-                {item.sender_id === this.state.chatId ? (
+                {item.sender_id !== userInfor.id ? (
                     <div
                         style={{
                             display: 'flex',

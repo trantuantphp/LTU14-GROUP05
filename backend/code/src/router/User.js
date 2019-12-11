@@ -5,7 +5,6 @@ const UserController = require('../controller/User');
 
 user_router.post('/', async function(req, res) {
     let data = await UserController.getAllUser(req);
-    console.log(res.header());
     return res.json(data);
 });
 user_router.post('/detail', async function(req, res) {

@@ -29,6 +29,13 @@ file_router.post('/upload', upload.single('avatarImage'), async function(
     let data = await FileController.upload(req);
     return res.json(data);
 });
+file_router.post('/send', upload.single('file'), async function(
+    req,
+    res
+) {
+    let data = await FileController.upload(req);
+    return res.json(data);
+});
 file_router.get('/view/:name?', function(req, res) {
     let img = 'uploads/' + req.params.name;
     fs.readFile(img, function(err, data) {

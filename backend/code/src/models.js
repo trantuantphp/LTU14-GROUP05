@@ -138,6 +138,12 @@ var Message = db.define(
         },
         receiver_type: {
             type: Sequelize.TINYINT
+        },
+        file_name: {
+            type: Sequelize.STRING
+        },
+        file_original_name: {
+            type: Sequelize.STRING
         }
     },
     {

@@ -1,7 +1,8 @@
-import { observable } from 'mobx';
-
+import { observable, decorate } from 'mobx';
 class AuthStore {
-    @observable login = true;
+    login = true;
 }
-
+decorate(AuthStore, {
+    login: observable
+})
 export default AuthStore;

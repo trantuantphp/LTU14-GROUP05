@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Switch } from 'react-router-dom';
 import AuthRoute from './AuthRoute';
-import HomeScreen from 'screens/Home/HomeScreen';
+import User from 'screens/User';
 
 class MainRouter extends Component {
     render() {
         return (
             <Switch>
-                <AuthRoute exact path='/' component={HomeScreen} />
+                <AuthRoute exact path='/' component={User.List} />
             </Switch>
         );
     }

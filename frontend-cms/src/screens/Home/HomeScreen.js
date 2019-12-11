@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Table, Button, Row, Col, Divider } from 'antd';
-import SearchBar from '../SearchBar';
 
 const data = [
     {
@@ -180,10 +179,6 @@ class HomeScreen extends Component {
                         >
                             LOGOUT
                         </Button>
-                        <SearchBar
-                            onChangeInput={values => this.onChangeInput(values)}
-                            style={{ marginBottom: '20px' }}
-                        />
                         <Table
                             columns={columns}
                             dataSource={dataFilter}

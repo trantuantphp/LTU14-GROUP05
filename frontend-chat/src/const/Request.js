@@ -4,7 +4,7 @@ export const Request = {
     async Header() {
         return await Axios.create({
             baseURL: 'http://api-dds.tuan-ltu.com',
-            timeout: 1000,
+            timeout: 10000,
             headers: { 'Content-Type': 'application/json' }
         });
     },

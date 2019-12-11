@@ -42,7 +42,7 @@ class Login extends Component {
         const { AuthStore, history } = this.props;
         if (this.state.username !== '' && this.state.password !== '') {
             const res = await AuthenService.login(this.state.username, this.state.password);
-            console.log('RES', JSON.stringify(res));
+            // console.log('RES', JSON.stringify(res));
             if (res && res.errorCode === 0) {
                 if (res.data) {
                     AuthStore.isLogin = true;

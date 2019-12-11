@@ -1,0 +1,13 @@
+.avatarListFriend { 
+    width: 30pt; 
+    height: 30pt; 
+    border-radius: 15pt; 
+    background-color: red; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    margin-right: 10pt; 
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }

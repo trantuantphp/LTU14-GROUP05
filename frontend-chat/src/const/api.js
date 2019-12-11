@@ -7,5 +7,9 @@ export const api = {
     getAllUser: `${prefixUser}/`,
     getListRoom: `${prefixUser}/room`,
     getUserDetail: `${prefixUser}/detail`,
-    getListMember:`${prefixRoom}/`,
+    getListMember: `${prefixRoom}/`,
+    createRoom: `${prefixRoom}/create`,
+    addMember: `${prefixRoom}/add`,
+    sendMessage: '/message/send',
+    listMess:'/message/list',
 };

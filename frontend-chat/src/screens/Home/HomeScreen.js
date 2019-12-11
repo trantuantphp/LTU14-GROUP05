@@ -8,12 +8,11 @@ import { Picker, Emoji } from 'emoji-mart';
 import './style.css';
 import { ChatService } from '../../Services/ChatService';
 import TextArea from 'antd/lib/input/TextArea';
+import Group from '../Group/Group';
 
-var socket = require('socket.io-client')('api-dds.tuan-ltu.com', {
-    transports: ['polling']
-});
+var socket = require('socket.io-client')('api-dds.tuan-ltu.com');
 
-@inject('NewsStore', 'AuthStore')
+@inject('ChatStore', 'AuthStore')
 @observer
 class HomeScreen extends Component {
     constructor(props) {
@@ -21,23 +20,26 @@ class HomeScreen extends Component {
         this.state = {
             isShowEmoji: false,
             listFriends: [],
-            listGroups: [],
             currentChat: -1,
             currentGroup: -1,
             isShowSetting: false,
             dataChat: [],
             listFriendOnline: [],
-            chatName: '',
             chatAvatar: '',
             shared: [],
-            members: [],
-            value: ''
+            value: '',
+            chatId: -1,
+            socketId: '',
+            messReceived: '',
+            isAddMember: false,
+            roomId: -1,
         };
     }
 
     componentDidMount() {
+        const { AuthStore } = this.props;
         this.getData();
-        const userInfor = JSON.parse(localStorage.getItem('userInfor'));
+        const userInfor = AuthStore.userInfor;
         const body = {
             username: userInfor.username,
             id: userInfor.id
@@ -51,22 +53,31 @@ class HomeScreen extends Component {
                 });
             }
         });
+        socket.on('addRoomMember', data => {
+            if (data) {
+                socket.emit('joinRoom', { room_id: data });
+                console.log('asdf', data);
+            }
+        });
     }
 
     getData = async () => {
-        const userInfor = JSON.parse(localStorage.getItem('userInfor'));
+        const { AuthStore, ChatStore } = this.props;
+        const userInfor = AuthStore.userInfor;
         const listFriends = await ChatService.getAllUser();
         const listGroups = await ChatService.getListRoom(userInfor.id);
-
         if (listFriends.errorCode === 0 && listFriends.data) {
             this.setState({
                 listFriends: listFriends.data
             });
         }
         if (listGroups && listGroups.rooms) {
-            this.setState({
-                listGroups: listGroups.rooms
+            const arrRoom = [];
+            listGroups.rooms.map(item => {
+                arrRoom.push(item.id);
             });
+            socket.emit('joinListRoom', arrRoom);
+            ChatStore.setListGroup(listGroups.rooms);
         }
     };
 
@@ -85,23 +96,116 @@ class HomeScreen extends Component {
     };
 
     onClickItem = async (item, index) => {
+        const { ChatStore, AuthStore } = this.props;
+        const userInfor = AuthStore.userInfor;
         const res = await ChatService.getUserDetail(item.id);
-        if (res.errorCode === 0 && res.data) {
+        const listMess = await ChatService.getListMess(userInfor.id, item.id, 1);
+        this.setState({
+            chatId: item.id
+        });
+        if (listMess && listMess.data) {
             this.setState({
-                chatName: res.data.name,
-                chatAvatar: res.data.avatar
+                dataChat: listMess.data
             });
         }
+        if (res && res.errorCode === 0 && res.data) {
+            ChatStore.setChatName(res.data.name);
+            this.setState({
+                chatAvatar: res.data.avatar,
+            });
+        }
+        this.state.listFriendOnline.map(online => {
+            if (item.id === online.id) {
+                this.setState({
+                    socketId: online.socket
+                });
+            }
+        });
         this.setState({
             currentChat: index,
             currentGroup: -1
         });
     };
 
+    onClickSendMess = async () => {
+        const { AuthStore } = this.props;
+        const { value, chatId, socketId, dataChat } = this.state;
+        const userInfor = AuthStore.userInfor;
+        const chat = dataChat;
+        if (chatId >= 0) {
+            if (value.length > 0) {
+                const res = await ChatService.sendMess(1, value, userInfor.id, chatId, 1);
+                if (res && res.errorCode === 0) {
+                    const body = {
+                        type: 1,
+                        value: value,
+                        sender_id: userInfor.id,
+                        receiver_id: chatId,
+                        receiver_type: 1,
+                        socket: socketId
+                    };
+                    const mess = {
+                        id: new Date(),
+                        type: 1,
+                        value: value,
+                        sender_id: userInfor.id,
+                        receiver_id: chatId,
+                        receiver_type: 1,
+                        createdAt: new Date()
+                    };
+                    chat.push(mess);
+                    this.setState({
+                        dataChat: chat,
+                        value: ''
+                    });
+                    socket.emit('sendMessage', body);
+                }
+            }
+        } else {
+            alert('ERROR!!');
+        }
+        socket.on('receiveMessage', data => {
+            if (data) {
+                const mess = {
+                    id: new Date(),
+                    type: data.type,
+                    value: data.value,
+                    sender_id: data.sender_id,
+                    receiver_id: data.receiver_id,
+                    receiver_type: data.receiver_type,
+                    createdAt: new Date()
+                };
+                chat.push(mess);
+                this.setState({
+                    dataChat: chat
+                });
+            }
+        });
+    }
+
+    handleAddMember = () => {
+        const { ChatStore } = this.props;
+        ChatStore.isShowGroup = true;
+        this.setState({
+            isAddMember: true
+        });
+    }
+
+    handleCreateGroup = () => {
+        const { ChatStore } = this.props;
+        ChatStore.isShowGroup = true;
+    }
+
+    dissmissModalGroup = () => {
+        const { ChatStore } = this.props;
+        ChatStore.isShowGroup = false;
+    }
+
     onClickGroupChat = async (item, index) => {
+        const { ChatStore } = this.props;
         const res = await ChatService.getListMember(item.id);
         let nameGroup = '';
-        if (res[0]) {
+        if (res && res[0]) {
             res[0].members.map((item, index) => {
                 if (index === res[0].members.length - 1) {
                     nameGroup += item.name;
@@ -109,14 +213,13 @@ class HomeScreen extends Component {
                     nameGroup += item.name + ', ';
                 }
             });
-            this.setState({
-                chatName: nameGroup,
-                members: res[0].members
-            });
+            ChatStore.setChatName(nameGroup);
+            ChatStore.setMembers(res[0].members);
         }
         this.setState({
             currentGroup: index,
-            currentChat: -1
+            currentChat: -1,
+            roomId: item.id
         });
     };
 
@@ -199,40 +302,42 @@ class HomeScreen extends Component {
 
     renderListFriend(item, index) {
         const { currentChat, listFriendOnline } = this.state;
-        return (
-            <div>
-                <button
-                    className={
-                        index === currentChat
-                            ? 'containerCurrentItem'
-                            : 'containerItem'
-                    }
-                    onClick={() => this.onClickItem(item, index)}
-                >
-                    <div style={{ width: 60 }}>
-                        {item.avatar ? (
-                            <div
-                                className='avatarListFriend'
-                                style={{
-                                    backgroundImage: `url(http://${item.avatar})`
-                                }}
-                            />
-                        ) : (
-                            <div className='avatarListFriend' />
-                        )}
-                    </div>
-                    <div className='cotainerListFriend'>
-                        <div>{item.name}</div>
-                        <div className='styleLastMess'>
-                            {listFriendOnline.map(online => {
-                                if (item.id === online.id)
-                                    return <div>Online</div>;
-                            })}
+        const userInfor = this.props.AuthStore.userInfor;
+        if (item.id !== userInfor.id)
+            return (
+                <div>
+                    <button
+                        className={
+                            index === currentChat
+                                ? 'containerCurrentItem'
+                                : 'containerItem'
+                        }
+                        onClick={() => this.onClickItem(item, index)}
+                    >
+                        <div style={{ width: 60 }}>
+                            {item.avatar ? (
+                                <div
+                                    className='avatarListFriend'
+                                    style={{
+                                        backgroundImage: `url(http://${item.avatar})`
+                                    }}
+                                />
+                            ) : (
+                                    <div className='avatarListFriend' />
+                                )}
                         </div>
-                    </div>
-                </button>
-            </div>
-        );
+                        <div className='cotainerListFriend'>
+                            <div>{item.name}</div>
+                            <div className='styleLastMess'>
+                                {listFriendOnline.map(online => {
+                                    if (item.id === online.id)
+                                        return <div>Online</div>;
+                                })}
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            );
     }
 
     renderListGroup(item, index) {
@@ -256,8 +361,8 @@ class HomeScreen extends Component {
                                 }}
                             />
                         ) : (
-                            <div className='avatarListFriend' />
-                        )}
+                                <div className='avatarListFriend' />
+                            )}
                     </div>
                     <div className='cotainerListFriend'>
                         <div>{item.name}</div>
@@ -269,9 +374,10 @@ class HomeScreen extends Component {
     }
 
     renderListMess(item, index) {
+        console.log('asdf', item.sender_id, ' ', this.state.chatId);
         return (
             <div>
-                {item.id === 1 ? (
+                {item.sender_id === this.state.chatId ? (
                     <div
                         style={{
                             display: 'flex',
@@ -299,46 +405,46 @@ class HomeScreen extends Component {
                                 wordBreak: 'break-all'
                             }}
                         >
-                            {item.mess}
+                            {item.value}
                         </div>
                     </div>
                 ) : (
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'flex-end',
-                            padding: 10
-                        }}
-                    >
                         <div
                             style={{
                                 display: 'flex',
-                                maxWidth: '100%',
-                                wordBreak: 'break-all',
-                                textAlign: 'right'
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                padding: 10
                             }}
                         >
-                            {item.mess}
-                        </div>
-                        <div style={{ width: 40, marginLeft: 10 }}>
                             <div
                                 style={{
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: 20,
-                                    backgroundColor: 'red'
+                                    display: 'flex',
+                                    maxWidth: '100%',
+                                    wordBreak: 'break-all',
+                                    textAlign: 'right'
                                 }}
-                            />
+                            >
+                                {item.value}
+                            </div>
+                            <div style={{ width: 40, marginLeft: 10 }}>
+                                <div
+                                    style={{
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: 20,
+                                        backgroundColor: 'red'
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
             </div>
         );
     }
 
     renderSiderChat() {
-        const { currentChat, chatName, chatAvatar } = this.state;
+        const { currentChat, chatAvatar } = this.state;
         return (
             <div
                 style={{
@@ -366,9 +472,9 @@ class HomeScreen extends Component {
                             }}
                         />
                     ) : (
-                        <div className='bigAvatar' />
-                    )}
-                    <div>{chatName}</div>
+                            <div className='bigAvatar' />
+                        )}
+                    <div>{this.props.ChatStore.chatName}</div>
                 </div>
 
                 <div
@@ -469,7 +575,7 @@ class HomeScreen extends Component {
                             >
                                 Thành viên
                             </div>
-                            <Button type='link' style={{ width: '100%' }}>
+                            <Button type='link' style={{ width: '100%' }} onClick={this.handleAddMember}>
                                 <div
                                     style={{
                                         width: '100%',
@@ -488,7 +594,7 @@ class HomeScreen extends Component {
                                     </div>
                                 </div>
                             </Button>
-                            {this.state.members.map((item, index) => {
+                            {this.props.ChatStore.members.map((item, index) => {
                                 return (
                                     <div key={index.toString()}>
                                         <button
@@ -506,8 +612,8 @@ class HomeScreen extends Component {
                                                         }}
                                                     />
                                                 ) : (
-                                                    <div className='avatarListFriend' />
-                                                )}
+                                                        <div className='avatarListFriend' />
+                                                    )}
                                             </div>
                                             <div className='cotainerListFriend'>
                                                 <div>{item.name}</div>
@@ -561,7 +667,7 @@ class HomeScreen extends Component {
     }
 
     renderChat() {
-        const { chatName, chatAvatar, isShowEmoji, value } = this.state;
+        const { chatAvatar, isShowEmoji, value } = this.state;
         return (
             <div style={{ height: '100vh' }}>
                 <div className='topBar'>
@@ -574,9 +680,9 @@ class HomeScreen extends Component {
                                 }}
                             />
                         ) : (
-                            <div className='avatarListFriend' />
-                        )}
-                        <div>{chatName}</div>
+                                <div className='avatarListFriend' />
+                            )}
+                        <div>{this.props.ChatStore.chatName}</div>
                     </div>
                     <div className='styleChildrenTop'>
                         <div>icon</div>
@@ -611,7 +717,7 @@ class HomeScreen extends Component {
                                     className='styleTextArea'
                                     value={value}
                                     onChange={this.onChangeText}
-                                    // onClick={this.handleChangeCursor}
+                                // onClick={this.handleChangeCursor}
                                 />
                                 <div>
                                     <Button
@@ -639,7 +745,7 @@ class HomeScreen extends Component {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Button type='link'>
+                                    <Button type='link' onClick={this.onClickSendMess}>
                                         <img
                                             src={require('../../assets/images/send.png')}
                                             alt='sned'
@@ -658,7 +764,8 @@ class HomeScreen extends Component {
     }
 
     render() {
-        const { currentChat, isShowSetting, currentGroup } = this.state;
+        const { ChatStore } = this.props;
+        const { currentChat, isShowSetting, currentGroup, listFriends, isAddMember, roomId, listFriendOnline } = this.state;
         return (
             <div>
                 <Row type='flex'>
@@ -674,7 +781,7 @@ class HomeScreen extends Component {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Button>
+                                    <Button onClick={this.handleCreateGroup}>
                                         <div className='btnCreateGroup'>
                                             <Icon type='usergroup-add' />
                                             <div style={{ marginLeft: 10 }}>
@@ -714,7 +821,7 @@ class HomeScreen extends Component {
                                     >
                                         Nhóm
                                     </div>
-                                    {this.state.listGroups.map((item, index) =>
+                                    {ChatStore.listGroup.map((item, index) =>
                                         this.renderListGroup(item, index)
                                     )}
                                 </div>
@@ -725,11 +832,11 @@ class HomeScreen extends Component {
                         {currentChat !== -1 || currentGroup !== -1 ? (
                             this.renderChat()
                         ) : (
-                            <div className='mainContainer'>
-                                <h1>Welcome to Live chat</h1>
-                                <div>asdfasdfsdfasdf</div>
-                            </div>
-                        )}
+                                <div className='mainContainer'>
+                                    <h1>Welcome to Live chat</h1>
+                                    <div>asdfasdfsdfasdf</div>
+                                </div>
+                            )}
                         <Modal
                             visible={isShowSetting}
                             footer={false}
@@ -737,6 +844,14 @@ class HomeScreen extends Component {
                             onCancel={this.onCancelSetting}
                         >
                             {this.renderSetting()}
+                        </Modal>
+                        <Modal
+                            visible={ChatStore.isShowGroup}
+                            footer={false}
+                            centered
+                            onCancel={this.dissmissModalGroup}
+                        >
+                            <Group dataUser={listFriends} userInfor={this.props.AuthStore.userInfor} isAddMember={isAddMember} roomId={roomId} listFriendOnline={listFriendOnline} />
                         </Modal>
                     </Col>
                 </Row>

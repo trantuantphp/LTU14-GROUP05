@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom';
 import HomeScreen from '../../screens/Home/HomeScreen';
 import Login from '../../screens/Login';
 import Path from './Path';
+import Group from '../../screens/Group/Group';
 
 class AppRouter extends Component {
     constructor(props) {

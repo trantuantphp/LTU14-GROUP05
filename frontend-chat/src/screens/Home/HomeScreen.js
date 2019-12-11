@@ -107,6 +107,10 @@ class HomeScreen extends Component {
             this.setState({
                 dataChat: listMess.data
             });
+        } else {
+            this.setState({
+                dataChat: []
+            });
         }
         if (res && res.errorCode === 0 && res.data) {
             ChatStore.setChatName(res.data.name);
@@ -204,6 +208,16 @@ class HomeScreen extends Component {
     onClickGroupChat = async (item, index) => {
         const { ChatStore } = this.props;
         const res = await ChatService.getListMember(item.id);
+        const listMess = await ChatService.getListMess(item.id, 2);
+        if (listMess && listMess.data) {
+            this.setState({
+                dataChat: listMess.data
+            });
+        } else {
+            this.setState({
+                dataChat: []
+            });
+        }
         let nameGroup = '';
         if (res && res[0]) {
             res[0].members.map((item, index) => {

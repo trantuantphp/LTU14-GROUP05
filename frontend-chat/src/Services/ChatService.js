@@ -74,5 +74,13 @@ export const ChatService = {
         };
         const res = await Request.postWithParam(api.listMess, body);
         return res;
-    }
+    },
+    getListMessGroup: async (receivedId, receiver_type) => {
+        const body = {
+            receiver_id: receivedId,
+            receiver_type: receiver_type
+        };
+        const res = await Request.postWithParam(api.listMess, body);
+        return res;
+    },
 };

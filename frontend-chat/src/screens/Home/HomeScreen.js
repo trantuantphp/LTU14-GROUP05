@@ -1,7 +1,8 @@
 /* eslint-disable react/button-has-type */
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { Row, Col, Input, Icon, Button, Modal, List } from 'antd';
+import { toJS } from 'mobx';
+import { Row, Col, Input, Icon, Button, Modal, List, Upload, message } from 'antd';
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, Emoji } from 'emoji-mart';
 
@@ -32,7 +33,7 @@ class HomeScreen extends Component {
             socketId: '',
             messReceived: '',
             isAddMember: false,
-            roomId: -1,
+            roomId: -1
         };
     }
 
@@ -99,7 +100,11 @@ class HomeScreen extends Component {
         const { ChatStore, AuthStore } = this.props;
         const userInfor = AuthStore.userInfor;
         const res = await ChatService.getUserDetail(item.id);
-        const listMess = await ChatService.getListMess(userInfor.id, item.id, 1);
+        const listMess = await ChatService.getListMess(
+            userInfor.id,
+            item.id,
+            1
+        );
         this.setState({
             chatId: item.id
         });
@@ -115,7 +120,7 @@ class HomeScreen extends Component {
         if (res && res.errorCode === 0 && res.data) {
             ChatStore.setChatName(res.data.name);
             this.setState({
-                chatAvatar: res.data.avatar,
+                chatAvatar: res.data.avatar
             });
         }
         this.state.listFriendOnline.map(online => {
@@ -138,7 +143,7 @@ class HomeScreen extends Component {
         if (this.state.currentChat >= 0) {
             this.sendMessSingle();
         }
-    }
+    };
 
     sendMessGroup = async () => {
         const { AuthStore } = this.props;
@@ -155,7 +160,13 @@ class HomeScreen extends Component {
             createdAt: new Date()
         };
         if (value.length > 0) {
-            const res = await ChatService.sendMess(1, value, userInfor.id, roomId, 2);
+            const res = await ChatService.sendMess(
+                1,
+                value,
+                userInfor.id,
+                roomId,
+                2
+            );
             if (res && res.errorCode === 0) {
                 chat.push(messSender);
                 const body = {
@@ -190,7 +201,7 @@ class HomeScreen extends Component {
                 });
             }
         });
-    }
+    };
 
     sendMessSingle = async () => {
         const { AuthStore } = this.props;
@@ -199,7 +210,13 @@ class HomeScreen extends Component {
         const chat = dataChat;
         if (chatId >= 0) {
             if (value.length > 0) {
-                const res = await ChatService.sendMess(1, value, userInfor.id, chatId, 1);
+                const res = await ChatService.sendMess(
+                    1,
+                    value,
+                    userInfor.id,
+                    chatId,
+                    1
+                );
                 if (res && res.errorCode === 0) {
                     const body = {
                         type: 1,
@@ -246,7 +263,7 @@ class HomeScreen extends Component {
                 });
             }
         });
-    }
+    };
 
     handleAddMember = () => {
         const { ChatStore } = this.props;
@@ -254,17 +271,29 @@ class HomeScreen extends Component {
         this.setState({
             isAddMember: true
         });
-    }
+    };
 
     handleCreateGroup = () => {
         const { ChatStore } = this.props;
         ChatStore.isShowGroup = true;
+    };
+
+    onChangeUpload = info => {
+        if (info.file.status === 'uploading') {
+            return;
+        }
+        if (info.file.status === 'done') {
+            console.log(info.file.response);
+            return;
+        } else {
+            return message.error('Không gửi được file');
+        }
     }
 
     dissmissModalGroup = () => {
         const { ChatStore } = this.props;
         ChatStore.isShowGroup = false;
-    }
+    };
 
     onClickGroupChat = async (item, index) => {
         const { ChatStore } = this.props;
@@ -398,8 +427,8 @@ class HomeScreen extends Component {
                                     }}
                                 />
                             ) : (
-                                    <div className='avatarListFriend' />
-                                )}
+                                <div className='avatarListFriend' />
+                            )}
                         </div>
                         <div className='cotainerListFriend'>
                             <div>{item.name}</div>
@@ -436,8 +465,8 @@ class HomeScreen extends Component {
                                 }}
                             />
                         ) : (
-                                <div className='avatarListFriend' />
-                            )}
+                            <div className='avatarListFriend' />
+                        )}
                     </div>
                     <div className='cotainerListFriend'>
                         <div>{item.name}</div>
@@ -485,36 +514,36 @@ class HomeScreen extends Component {
                         </div>
                     </div>
                 ) : (
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            padding: 10
+                        }}
+                    >
                         <div
                             style={{
                                 display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'flex-end',
-                                padding: 10
+                                maxWidth: '100%',
+                                wordBreak: 'break-all',
+                                textAlign: 'right'
                             }}
                         >
+                            {item.value}
+                        </div>
+                        <div style={{ width: 40, marginLeft: 10 }}>
                             <div
                                 style={{
-                                    display: 'flex',
-                                    maxWidth: '100%',
-                                    wordBreak: 'break-all',
-                                    textAlign: 'right'
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: 20,
+                                    backgroundColor: 'red'
                                 }}
-                            >
-                                {item.value}
-                            </div>
-                            <div style={{ width: 40, marginLeft: 10 }}>
-                                <div
-                                    style={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: 20,
-                                        backgroundColor: 'red'
-                                    }}
-                                />
-                            </div>
+                            />
                         </div>
-                    )}
+                    </div>
+                )}
             </div>
         );
     }
@@ -548,8 +577,8 @@ class HomeScreen extends Component {
                             }}
                         />
                     ) : (
-                            <div className='bigAvatar' />
-                        )}
+                        <div className='bigAvatar' />
+                    )}
                     <div>{this.props.ChatStore.chatName}</div>
                 </div>
 
@@ -651,7 +680,11 @@ class HomeScreen extends Component {
                             >
                                 Thành viên
                             </div>
-                            <Button type='link' style={{ width: '100%' }} onClick={this.handleAddMember}>
+                            <Button
+                                type='link'
+                                style={{ width: '100%' }}
+                                onClick={this.handleAddMember}
+                            >
                                 <div
                                     style={{
                                         width: '100%',
@@ -688,8 +721,8 @@ class HomeScreen extends Component {
                                                         }}
                                                     />
                                                 ) : (
-                                                        <div className='avatarListFriend' />
-                                                    )}
+                                                    <div className='avatarListFriend' />
+                                                )}
                                             </div>
                                             <div className='cotainerListFriend'>
                                                 <div>{item.name}</div>
@@ -756,8 +789,8 @@ class HomeScreen extends Component {
                                 }}
                             />
                         ) : (
-                                <div className='avatarListFriend' />
-                            )}
+                            <div className='avatarListFriend' />
+                        )}
                         <div>{this.props.ChatStore.chatName}</div>
                     </div>
                     <div className='styleChildrenTop'>
@@ -793,7 +826,7 @@ class HomeScreen extends Component {
                                     className='styleTextArea'
                                     value={value}
                                     onChange={this.onChangeText}
-                                // onClick={this.handleChangeCursor}
+                                    // onClick={this.handleChangeCursor}
                                 />
                                 <div>
                                     <Button
@@ -810,18 +843,29 @@ class HomeScreen extends Component {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Button type='link'>
-                                        <Icon
-                                            type='folder'
-                                            style={{
-                                                fontSize: 30,
-                                                color: '#000000'
-                                            }}
-                                        />
-                                    </Button>
+                                    <Upload
+                                        name='file'
+                                        accept='.jpg,.png,.jpeg,.txt'
+                                        showUploadList={false}
+                                        action='http://api-dds.tuan-ltu.com/file/send'
+                                        onChange={this.onChangeUpload}
+                                    >
+                                        <Button type='link'>
+                                            <Icon
+                                                type='folder'
+                                                style={{
+                                                    fontSize: 30,
+                                                    color: '#000000'
+                                                }}
+                                            />
+                                        </Button>
+                                    </Upload>
                                 </div>
                                 <div>
-                                    <Button type='link' onClick={this.onClickSendMess}>
+                                    <Button
+                                        type='link'
+                                        onClick={this.onClickSendMess}
+                                    >
                                         <img
                                             src={require('../../assets/images/send.png')}
                                             alt='sned'
@@ -840,8 +884,16 @@ class HomeScreen extends Component {
     }
 
     render() {
-        const { ChatStore } = this.props;
-        const { currentChat, isShowSetting, currentGroup, listFriends, isAddMember, roomId, listFriendOnline } = this.state;
+        const { ChatStore, AuthStore } = this.props;
+        const {
+            currentChat,
+            isShowSetting,
+            currentGroup,
+            listFriends,
+            isAddMember,
+            roomId,
+            listFriendOnline
+        } = this.state;
         return (
             <div>
                 <Row type='flex'>
@@ -853,7 +905,14 @@ class HomeScreen extends Component {
                                         type='link'
                                         onClick={this.onClickSetting}
                                     >
-                                        <Icon type='setting' />
+                                        <Icon type='setting' />{' '}
+                                        {
+                                            JSON.parse(
+                                                localStorage.getItem(
+                                                    'userInfor'
+                                                )
+                                            ).name
+                                        }
                                     </Button>
                                 </div>
                                 <div>
@@ -908,11 +967,10 @@ class HomeScreen extends Component {
                         {currentChat !== -1 || currentGroup !== -1 ? (
                             this.renderChat()
                         ) : (
-                                <div className='mainContainer'>
-                                    <h1>Welcome to Live chat</h1>
-                                    <div>asdfasdfsdfasdf</div>
-                                </div>
-                            )}
+                            <div className='mainContainer'>
+                                <h1>Welcome to Live chat</h1>
+                            </div>
+                        )}
                         <Modal
                             visible={isShowSetting}
                             footer={false}
@@ -927,7 +985,13 @@ class HomeScreen extends Component {
                             centered
                             onCancel={this.dissmissModalGroup}
                         >
-                            <Group dataUser={listFriends} userInfor={this.props.AuthStore.userInfor} isAddMember={isAddMember} roomId={roomId} listFriendOnline={listFriendOnline} />
+                            <Group
+                                dataUser={listFriends}
+                                userInfor={this.props.AuthStore.userInfor}
+                                isAddMember={isAddMember}
+                                roomId={roomId}
+                                listFriendOnline={listFriendOnline}
+                            />
                         </Modal>
                     </Col>
                 </Row>

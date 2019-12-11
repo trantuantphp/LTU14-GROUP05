@@ -5,14 +5,16 @@ const { Message } = models;
 
 module.exports = {
     getListMessage: async req => {
-        const { id } = req.body;
+        const { receiver_type, receiver_id } = req.body;
         let data = await Message.findAll({
             where: {
-                receiver_id: id
+                receiver_id: receiver_id,
+                receiver_type: receiver_type
             }
         });
         return {
             errorCode: errorCode.callAPI.success,
+            msg: 'Done',
             data: data
         };
     },

@@ -98,7 +98,7 @@ module.exports = {
                 username: username,
                 status: 1
             },
-            attributes: ['username', 'name', 'avatar']
+            attributes: ['id', 'username', 'name', 'avatar']
         });
         if (!data) {
             return {

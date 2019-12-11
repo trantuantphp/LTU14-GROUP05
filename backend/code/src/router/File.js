@@ -29,7 +29,7 @@ file_router.post('/upload', upload.single('avatarImage'), async function(
     let data = await FileController.upload(req);
     return res.json(data);
 });
-file_router.get('/image/:name?', function(req, res) {
+file_router.get('/view/:name?', function(req, res) {
     let img = 'uploads/' + req.params.name;
     fs.readFile(img, function(err, data) {
         if (err) {
@@ -38,6 +38,10 @@ file_router.get('/image/:name?', function(req, res) {
         res.write(data);
         res.end();
     });
+});
+file_router.get('/download/:name?', async function(req, res) {
+    let file = await 'uploads/' + req.params.name;
+    res.download(file);
 });
 
 module.exports = file_router;

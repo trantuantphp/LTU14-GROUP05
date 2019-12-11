@@ -12,16 +12,39 @@ app.set('views', './views');
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 server.listen(port, () => console.log('Server running in port ' + port));
+app.use(function(req, res, next) {
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow
+    res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, OPTIONS, PUT, PATCH, DELETE'
+    );
+
+    // Request headers you wish to allow
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-Requested-With,content-type'
+    );
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', false);
+    next();
+    // console.error(err.stack);
+    // res.send(err.stack);
+});
 
 var list_online = [];
 io.on('connection', function(socket) {
     socket.user_info = {
         username: '',
         id: null,
-        socket: '',
-        list_room: []
+        socket: ''
     };
-    let { user_info } = socket;
+    socket.list_room = [];
+    let { user_info, list_room } = socket;
     console.log('Welcome ' + socket.id);
     socket.on('disconnect', function() {
         console.log(socket.user_info.username + ' disconnect');
@@ -35,31 +58,44 @@ io.on('connection', function(socket) {
         list_online.push(socket.user_info);
         io.sockets.emit('getListOnline', list_online);
     });
-    socket.on('getListRoom', function(data) {
-        for (let i = 0; i < data.length; i++) {
-            socket.join(data[i]);
+    socket.on('joinListRoom', function(data) {
+        list_room = data;
+        for (let i = 0; i < list_room.length; i++) {
+            socket.join(list_room[i]);
         }
     });
     socket.on('createRoom', function(data) {
-        const { id, creator_id } = data;
+        const { id } = data;
+        socket.join(id);
     });
-    socket.on('addRoomMember', function(data) {
-        const { room_id, member_id } = data;
-    })
-    socket.on('sendPrivateMessage', function(data) {
-        const { socket, receiver_id, sender_id, type, value } = data;
-        io.to(socket).emit('receivePrivateMessage', {value, type});
+    socket.on('addMember', function(data) {
+        const { room_id, socket_id, member_id } = data;
+        io.to(socket_id).emit('addRoomMember', room_id);
     });
-    socket.on('sendRoomMessage', function(data) {
-        const { receiver_id, sender_id, type, value } = data;
-        io.sockets.in(receiver_id).emit('receiveGroupMessage', {value, type});
+    socket.on('joinRoom', function(room_id) {
+        socket.join(room_id);
+    });
+    socket.on('sendMessage', function(data) {
+        const {
+            socket,
+            receiver_id,
+            sender_id,
+            type,
+            value,
+            receiver_type
+        } = data;
+        // console.log(data);
+        switch (receiver_type) {
+            case 1:
+                io.to(socket).emit('receiveMessage', data);
+                break;
+            case 2:
+                io.in(receiver_id).emit('receiveMessage', data);
+                break;
+        }
     });
 });
 
-app.use(function(err, req, res, next) {
-    console.error(err.stack);
-    res.send(err.stack);
-});
 
 const Router = require('./src/router');
 
@@ -69,6 +105,7 @@ app.use('/admin', admin_router);
 app.use('/user', Router.User);
 app.use('/file', Router.File);
 app.use('/room', Router.Room);
+app.use('/message', Router.Message);
 
 app.get('/', (req, res) => {
     res.render('home');

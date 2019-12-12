@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { toJS } from 'mobx';
 import { inject, observer } from 'mobx-react';
 import _ from 'lodash';
-import { Table, Divider, Tag } from 'antd';
+import { Table } from 'antd';
 import Func from 'helpers/function';
 
 class ListUserScreen extends Component {
